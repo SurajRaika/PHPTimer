@@ -59,6 +59,8 @@ jobs:
 
     - name: Download artifacts
       uses: actions/download-artifact@v2
+      with:
+        name: timecli-${{ matrix.platform }}
 
     - name: Create Release
       id: create_release
@@ -77,6 +79,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./timecli-${{ matrix.platform }}/timecli-${{ matrix.platform }}.phar
+        asset_path: ./timecli-${{ matrix.platform }}.phar
         asset_name: timecli-${{ matrix.platform }}.phar
         asset_content_type: application/octet-stream
