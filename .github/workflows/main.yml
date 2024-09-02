@@ -61,8 +61,7 @@ jobs:
 
     - name: Download artifacts
       uses: actions/download-artifact@v2
-      with:
-        name: timecli-${{ matrix.platform }}
+
 
     - name: Create Release
       id: create_release
