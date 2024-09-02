@@ -1,0 +1,82 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: win
+          - os: macos-latest
+            platform: mac
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+
+    - name: Install box
+      run: |
+        wget https://github.com/box-project/box/releases/download/4.3.8/box.phar
+        chmod +x box.phar
+        sudo mv box.phar /usr/local/bin/box
+
+    - name: Create box.json
+      run: |
+        echo '{
+          "chmod": "0755",
+          "directories": ["."],
+          "main": "main.php",
+          "output": "timecli-${{ matrix.platform }}.phar",
+          "stub": true
+        }' > box.json
+
+    - name: Build PHAR
+      run: box compile
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: timecli-${{ matrix.platform }}
+        path: timecli-${{ matrix.platform }}.phar
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v2
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./timecli-${{ matrix.platform }}/timecli-${{ matrix.platform }}.phar
+        asset_name: timecli-${{ matrix.platform }}.phar
+        asset_content_type: application/octet-stream
