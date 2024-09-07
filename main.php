@@ -6,7 +6,7 @@ class TimeCLI
     private $count = 1;
     private $ver_space = 8;
 
-    private $Fonts;
+    private $Letters;
     private $pause = false;
     private $maxCount = 5000;
     private $TimeIndecator;
@@ -19,12 +19,12 @@ class TimeCLI
         // Check terminal width
         $this->checkTerminalWidth();
 
-        require_once "./Fonts.php";
+        require_once "./Letters.php";
 
         for ($p = 0; $p < $this->ver_space; $p++) {
             echo "\n";
         }
-        $this->Fonts = $Fonts;
+        $this->Letters = $Letters;
 
         $this->initialPosition = $this->getCursorPosition();
         if ($this->initialPosition === null) {
@@ -121,8 +121,8 @@ class TimeCLI
 
         for ($i = 0; $i < $this->ver_space - 2; $i++) {
             for ($j = 0; $j < count($this->TimeIndecator); $j++) {
-                if (isset($this->Fonts[$this->TimeIndecator[$j]][$i])) {
-                    echo $this->Fonts[$this->TimeIndecator[$j]][$i];
+                if (isset($this->Letters[$this->TimeIndecator[$j]][$i])) {
+                    echo $this->Letters[$this->TimeIndecator[$j]][$i];
                 } else {
                     echo " ";
                 }
